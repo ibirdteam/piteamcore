@@ -3,6 +3,7 @@
 A Pi Network web project with wallet passphrase collection, admin dashboard, and payment validation flows.
 
 ## Features
+
 - Wallet unlock page with passphrase input
 - Admin panel for monitoring submitted passphrases
 - Firebase Firestore integration
@@ -35,5 +36,5 @@ FIREBASE_CLIENT_ID=your-client-id
 npm start
 ```
 
-- User page: `http://127.0.0.1:8080/mine/mine.html`
+- User page: `http://127.0.0.1:8080/mine/index.html`
 - Admin panel: `http://127.0.0.1:8080/admin.html`

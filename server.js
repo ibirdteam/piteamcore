@@ -238,7 +238,7 @@ app.use((req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`\n✅ Pi Network server running`);
-  console.log(`   Local:    http://127.0.0.1:${PORT}/mine/mine.html`);
+  console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
   console.log(`   Admin:    http://127.0.0.1:${PORT}/admin.html`);
   console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase`);
   console.log(`   User:     ${ADMIN_USER}`);
