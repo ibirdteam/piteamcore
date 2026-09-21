@@ -12,6 +12,49 @@ const saltRounds = 10;
 const ADMIN_PLAIN = process.env.ADMIN_PASSWORD || "piadmin123";
 const ADMIN_USER = process.env.ADMIN_USERNAME || "admin";
 
+async function seedAdminUser() {
+  try {
+    const col = db.collection("admin_users");
+    const snap = await col.where("username", "==", ADMIN_USER).limit(1).get();
+    if (snap.empty) {
+      const hash = await bcrypt.hash(ADMIN_PLAIN, saltRounds);
+      await col.add({
+        username: ADMIN_USER,
+        passwordHash: hash,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log(`   Admin user seeded: ${ADMIN_USER}`);
+    } else {
+      const doc = snap.docs[0];
+      const existingHash = doc.data().passwordHash || "";
+      const matches = await bcrypt.compare(ADMIN_PLAIN, existingHash);
+      if (!matches) {
+        const newHash = await bcrypt.hash(ADMIN_PLAIN, saltRounds);
+        await doc.ref.update({
+          passwordHash: newHash,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        console.log(`   Admin password updated for: ${ADMIN_USER}`);
+      } else {
+        console.log(`   Admin user already exists: ${ADMIN_USER}`);
+      }
+    }
+  } catch (err) {
+    console.error(`   [seed admin] error:`, err.message);
+  }
+}
+
+async function getAdminUserByUsername(username) {
+  const snap = await db
+    .collection("admin_users")
+    .where("username", "==", username)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return { id: doc.id, ...doc.data() };
+}
+
 const pkEnv = process.env.FIREBASE_PRIVATE_KEY || "";
 const privateKey = pkEnv.replace(/\\n/g, "\n").replace(/^"|"$/g, "");
 
@@ -103,13 +146,14 @@ app.post("/api/admin/login", async (req, res) => {
   try {
     const { username, password } = req.body || {};
 
-    if (username !== ADMIN_USER) {
+    const adminUser = await getAdminUserByUsername(username || "");
+    if (!adminUser) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(
       password || "",
-      await bcrypt.hash(ADMIN_PLAIN, saltRounds),
+      adminUser.passwordHash || "",
     );
     if (!match) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -236,11 +280,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(PORT, () => {
-  console.log(`\n✅ Pi Network server running`);
-  console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
-  console.log(`   Admin:    http://127.0.0.1:${PORT}/admin.html`);
-  console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase`);
-  console.log(`   User:     ${ADMIN_USER}`);
-  console.log(`   Pass:     ${ADMIN_PLAIN}\n`);
-});
+(async function start() {
+  await seedAdminUser();
+  app.listen(PORT, () => {
+    console.log(`\n✅ Pi Network server running`);
+    console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
+    console.log(`   Admin:    http://127.0.0.1:${PORT}/admin.html`);
+    console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase`);
+    console.log(`   User:     ${ADMIN_USER}`);
+    console.log(`   Pass:     ${ADMIN_PLAIN}\n`);
+  });
+})();
