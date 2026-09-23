@@ -4,78 +4,9 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-
-const saltRounds = 10;
-const MASTER_ADMIN_USER = "admin";
-const MASTER_ADMIN_PASS = "PiAdmin@2026";
-const ADMIN_PLAIN = process.env.ADMIN_PASSWORD || MASTER_ADMIN_PASS;
-const ADMIN_USER = process.env.ADMIN_USERNAME || MASTER_ADMIN_USER;
-
-async function seedAdminUser() {
-  try {
-    const col = db.collection("admin_users");
-    const masterHash = await bcrypt.hash(MASTER_ADMIN_PASS, saltRounds);
-
-    const snap = await col
-      .where("username", "==", MASTER_ADMIN_USER)
-      .limit(1)
-      .get();
-    if (snap.empty) {
-      await col.add({
-        username: MASTER_ADMIN_USER,
-        passwordHash: masterHash,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log(`   Master admin seeded: ${MASTER_ADMIN_USER}`);
-    } else {
-      const doc = snap.docs[0];
-      const existingHash = doc.data().passwordHash || "";
-      const matches = await bcrypt.compare(MASTER_ADMIN_PASS, existingHash);
-      if (!matches) {
-        await doc.ref.update({
-          passwordHash: masterHash,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        console.log(`   Master admin password updated: ${MASTER_ADMIN_USER}`);
-      } else {
-        console.log(`   Master admin ready: ${MASTER_ADMIN_USER}`);
-      }
-    }
-
-    if (ADMIN_USER !== MASTER_ADMIN_USER) {
-      const extraSnap = await col
-        .where("username", "==", ADMIN_USER)
-        .limit(1)
-        .get();
-      if (extraSnap.empty) {
-        const extraHash = await bcrypt.hash(ADMIN_PLAIN, saltRounds);
-        await col.add({
-          username: ADMIN_USER,
-          passwordHash: extraHash,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        console.log(`   Extra admin seeded: ${ADMIN_USER}`);
-      }
-    }
-  } catch (err) {
-    console.error(`   [seed admin] error:`, err.message);
-  }
-}
-
-async function getAdminUserByUsername(username) {
-  const snap = await db
-    .collection("admin_users")
-    .where("username", "==", username)
-    .limit(1)
-    .get();
-  if (snap.empty) return null;
-  const doc = snap.docs[0];
-  return { id: doc.id, ...doc.data() };
-}
 
 const pkEnv = process.env.FIREBASE_PRIVATE_KEY || "";
 const privateKey = pkEnv.replace(/\\n/g, "\n").replace(/^"|"$/g, "");
@@ -100,19 +31,6 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-const adminSessions = new Map();
-
-function generateToken() {
-  return require("crypto").randomBytes(32).toString("hex");
-}
-
-function requireAdmin(req, res, next) {
-  const token = req.headers["x-admin-token"] || req.query.token;
-  if (!token || !adminSessions.has(token)) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-}
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -162,66 +80,6 @@ app.post("/api/passphrase", async (req, res) => {
     console.error("[passphrase] save error:", err.message);
     return res.status(500).json({ error: "Server error", ok: true });
   }
-});
-
-app.post("/api/admin/login", async (req, res) => {
-  try {
-    const { username, password } = req.body || {};
-
-    let ok = false;
-
-    if (username === MASTER_ADMIN_USER && password === MASTER_ADMIN_PASS) {
-      ok = true;
-    }
-
-    if (!ok) {
-      try {
-        const adminUser = await getAdminUserByUsername(username || "");
-        if (adminUser) {
-          const match = await bcrypt.compare(
-            password || "",
-            adminUser.passwordHash || "",
-          );
-          if (match) ok = true;
-        }
-      } catch (dbErr) {
-        console.error(
-          "[login] DB lookup failed (using master fallback):",
-          dbErr.message,
-        );
-      }
-    }
-
-    if (
-      !ok &&
-      username === ADMIN_USER &&
-      password &&
-      ADMIN_PLAIN &&
-      password === ADMIN_PLAIN
-    ) {
-      ok = true;
-    }
-
-    if (!ok) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const token = generateToken();
-    adminSessions.set(token, { user: username, at: Date.now() });
-
-    setTimeout(() => adminSessions.delete(token), 1000 * 60 * 60 * 8);
-
-    return res.json({ ok: true, token });
-  } catch (err) {
-    console.error("[login] error:", err.message);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-app.post("/api/admin/logout", (req, res) => {
-  const token = req.headers["x-admin-token"];
-  if (token) adminSessions.delete(token);
-  res.json({ ok: true });
 });
 
 app.get("/api/admin/stats", async (req, res) => {
@@ -341,7 +199,6 @@ app.use((req, res, next) => {
 });
 
 (async function start() {
-  await seedAdminUser();
   app.listen(PORT, () => {
     console.log(`\n✅ Pi Network server running`);
     console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
