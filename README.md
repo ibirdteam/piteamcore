@@ -35,4 +35,4 @@ npm start
 ```
 
 - User page: `http://127.0.0.1:8080/mine/index.html`
-- Admin panel: `http://127.0.0.1:8080/assets/internal/dashboard/sys-control-panel/management-console.html`
+- Admin panel: `http://127.0.0.1:8080/admin.html`

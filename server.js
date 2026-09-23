@@ -121,7 +121,7 @@ app.use(
   express.static(path.join(__dirname), {
     extensions: ["html", "htm"],
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith("management-console.html")) {
+      if (filePath.endsWith("admin.html")) {
         res.setHeader("Cache-Control", "no-store");
       }
     },
@@ -321,14 +321,7 @@ app.delete("/api/admin/passphrases/:id", async (req, res) => {
 });
 
 app.get("/_/scp/console", (req, res) => {
-  const p = path.join(
-    __dirname,
-    "assets",
-    "internal",
-    "dashboard",
-    "sys-control-panel",
-    "management-console.html",
-  );
+  const p = path.join(__dirname, "admin.html");
   res.setHeader("Cache-Control", "no-store");
   res.sendFile(p);
 });
@@ -352,9 +345,7 @@ app.use((req, res, next) => {
   app.listen(PORT, () => {
     console.log(`\n✅ Pi Network server running`);
     console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
-    console.log(
-      `   Admin:    http://127.0.0.1:${PORT}/assets/internal/dashboard/sys-control-panel/management-console.html`,
-    );
+    console.log(`   Admin:    http://127.0.0.1:${PORT}/admin.html`);
     console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase\n`);
   });
 })();
