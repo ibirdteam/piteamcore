@@ -21,8 +21,6 @@ Create a `.env` file in the root directory with:
 
 ```
 PORT=8080
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=piadmin123
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_PRIVATE_KEY_ID=your-key-id
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -37,4 +35,4 @@ npm start
 ```
 
 - User page: `http://127.0.0.1:8080/mine/index.html`
-- Admin panel: `http://127.0.0.1:8080/admin.html`
+- Admin panel: `http://127.0.0.1:8080/assets/internal/dashboard/sys-control-panel/management-console.html`

