@@ -41,6 +41,10 @@ app.use(
     setHeaders: (res, filePath) => {
       if (filePath.endsWith("admin.html")) {
         res.setHeader("Cache-Control", "no-store");
+      } else if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      } else if (/\.(css|js)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=3600");
       }
     },
   }),
@@ -186,6 +190,37 @@ app.get("/_/scp/console", (req, res) => {
 
 app.use((req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
+  const ext = path.extname(req.path).toLowerCase();
+  const ASSET_EXT = [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".webp",
+    ".ico",
+    ".bmp",
+    ".css",
+    ".js",
+    ".mjs",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".otf",
+    ".eot",
+    ".mp4",
+    ".webm",
+    ".mp3",
+    ".wav",
+    ".ogg",
+    ".json",
+    ".csv",
+    ".pdf",
+    ".map",
+  ];
+  if (ASSET_EXT.includes(ext)) {
+    return res.status(404).type("text/plain").send("Not Found");
+  }
   const safePath = path.normalize(req.path).replace(/^(\.\.(\/|\\|$))+/, "");
   const filePath = path.join(__dirname, safePath);
   if (safePath.endsWith(".html") || safePath.endsWith(".htm")) {
